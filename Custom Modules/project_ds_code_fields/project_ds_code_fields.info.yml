@@ -1,0 +1,7 @@
+name: 'Project DS Code Fields'
+type: module
+description: 'Provides custom display fields entirely through code'
+package: 'Custom'
+core: 8.x
+dependencies:
+  - ds

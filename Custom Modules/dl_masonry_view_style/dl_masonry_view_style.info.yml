@@ -1,0 +1,7 @@
+name: Digital Loom's Masonry View Style
+description: A no-dependency approach to Masonry Views output
+core: 8.x
+type: module
+dependencies:
+  - views
+package: Custom

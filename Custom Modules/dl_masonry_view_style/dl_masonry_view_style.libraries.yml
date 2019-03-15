@@ -1,0 +1,13 @@
+dl_masonry_view_style.masonry:
+  version: VERSION
+  css:
+    base:
+      css/dl-mvs.css: {} # override these styles in the project's theme
+  js:
+#    js/imagesloaded.pkgd.min.js: {} # delete if this already exists on the site (as it does in the Ganson base theme)
+    js/masonry.pkgd.min.js: {} # delete if this already exists on the site
+    js/dl-mvs.js: {} # customizzed per project
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+

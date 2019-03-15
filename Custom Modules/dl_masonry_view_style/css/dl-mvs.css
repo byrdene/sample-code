@@ -1,0 +1,21 @@
+/* Creates an initial 4 column responsive grid with gutters around the items
+
+   Use the project theme to override these styles or to create
+   different styles at different viewports */
+
+.dl-mvs-grid {
+  width: 100%;
+}
+
+/* grid-sizer sets the column width
+   but multiple classes for grid items can be created so that some items
+   span more than one column */
+.grid-sizer,
+.dl-mvs-grid-item {
+    width: 23.5%;
+}
+
+/* gutter-size sets the gutter around all items. */
+.gutter-sizer {
+    width: 2%;
+}

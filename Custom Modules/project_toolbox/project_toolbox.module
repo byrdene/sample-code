@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * @file
+ * Contains project_toolbox.module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+
+
+/**
+ * Implements hook_form_alter().
+ */
+function project_toolbox_form_alter(&$form, &$form_state, $form_id) {
+
+  // Kill the redundant help message under the login username/password fields.
+  if ($form_id == 'user_login_form') {
+    unset($form['name']['#description']);
+    unset($form['pass']['#description']);
+  }
+
+  // Only the administrator and dev role should access the Related View field
+  // We are doing this in code to avoid installing the Field Permissions module to manage one field
+  $user_role = \Drupal::currentUser()->getRoles();
+  $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+  $uid= $user->get('uid')->value;
+
+  if (($uid == 1) || (in_array('dev', $user_role))) {
+    $form['field_related_view']['#access'] = TRUE;
+  } else {
+    $form['field_related_view']['#access'] = FALSE;
+  }
+
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ * When the summary field is enabled, open the summary text by default.
+ * (This is a simplified version of https://www.drupal.org/project/text_summary_options)
+ */
+function project_toolbox_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
+
+  $field_definition = $context['items']->getFieldDefinition();
+
+  // Base fields are not configurable.
+  if (!$field_definition instanceof FieldConfig) {
+    return;
+  }
+
+  // We can't use the protected isDefaultValueWidget() method.
+  $is_default_value_widget = (bool) $form_state->get('default_value_widget');
+  if ($field_definition->getType() == 'text_with_summary' && !$is_default_value_widget) {
+    unset($element['summary']['#attached']);
+  }
+
+}
+
+/**
+ * Set dynamic allowed values for the Graduation or Class Year field.
+ * Need options of years with a "Current Student" option listed first
+ */
+function grad_year_allowed_values_function(FieldStorageConfig $definition, ContentEntityInterface $entity = NULL, $cacheable) {
+
+  $options = array_combine(range(date('Y'), 1925), range(date('Y'), 1925));
+  $options = array('Current Student' => 'Current Student') + $options;
+
+  return $options;
+}
+
+/**
+ * Set dynamic allowed values for the Academic Years field.
+ * Need options of 2018 - 2019, 2019 - 2020, etc with the current academic year listed first
+ */
+function role_academic_year_allowed_values_function(FieldStorageConfig $definition, ContentEntityInterface $entity = NULL, $cacheable) {
+
+  $options = array_combine(range(date('Y'), 1985), range(date('Y'), 1985));
+
+  $new_array = array();
+  foreach($options as $key => $value){
+    $new_array[$key . ' - ' . ($key+1)] = $value . ' - ' . ($value+1);
+  }
+  $options = $new_array;
+
+  return $options;
+}
+
+/**
+ * Do not limit the amount of text that can be added to the media embed caption field.
+ */
+function project_toolbox_form_entity_embed_dialog_alter(&$form, $form_state, $form_id) {
+
+  if(isset($form['attributes']['data-caption'])) {
+    $form['attributes']['data-caption']['#maxlength'] = '524288';
+    $form['attributes']['data-caption']['#maxlength_js'] = TRUE;
+  }
+  
+}
